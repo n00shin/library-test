@@ -1,6 +1,7 @@
 package service;
 
 import java.util.*;
+
 import dao.BookDao;
 import model.Book;
 
@@ -32,8 +33,7 @@ public class SearchOperation {
     //**********************************************************************
     //book search based on various indicator:
     private void searchBook() {
-
-        BookDao bookDao = null;
+        BookDao bookDao = new BookDao();
         String terminate;
         List<Book> library = bookDao.readAll();
         do {
@@ -42,7 +42,7 @@ public class SearchOperation {
                     "5.by pages\n 6.code\n 7.exit\n");
             switch (option) {
                 case 1:
-                    searchName(library);
+                    searchName(bookDao);
                     break;
                 case 2:
                     searchAuthor(library);
@@ -54,7 +54,7 @@ public class SearchOperation {
                     searchGenre(library);
                     break;
                 case 5:
-                    SearchPages(library);
+                    SearchPages(bookDao);
                 case 6:
                     searchCode(library);
                     break;
@@ -70,24 +70,21 @@ public class SearchOperation {
 
     }
 
-    private void searchName(List<Book> library) throws InputMismatchException, IllegalArgumentException {
+    private void searchName(BookDao bookDao) throws InputMismatchException, IllegalArgumentException {
+        String name = CustomInput.stringInput("please enter the word you want");
+        List<Book> result = bookDao.getBooksByName(name);
 
-        String n = CustomInput.stringInput("please enter the word you want");
-        int count1 = 0;
-        for (Book a1 : library) {
-            if (a1.getName().contains(n)) {
-                System.out.print(a1.getName());
-                System.out.println("-" + a1.getCode());
-                count1++;
-            }
+        if (result == null || result.size() == 0) {
+            System.out.print("does not exist\n");
         }
-        if (count1 == 0) {
-            System.out.print("does not exist");
+
+        for (Book a2 : result) {
+            System.out.print(a2.getName());
+            System.out.println("-" + a2.getCode());
         }
     }
 
     private void searchAuthor(List<Book> library) throws InputMismatchException, IllegalArgumentException {
-
         String w = CustomInput.stringInput("please enter the word you want");
         int count2 = 0;
         for (Book a2 : library) {
@@ -103,7 +100,6 @@ public class SearchOperation {
     }
 
     private void searchType(List<Book> library) throws InputMismatchException, IllegalArgumentException {
-
         String s = CustomInput.stringInput("please enter the word you want");
         int count3 = 0;
         for (Book a3 : library) {
@@ -119,7 +115,6 @@ public class SearchOperation {
     }
 
     private void searchGenre(List<Book> library) throws InputMismatchException, IllegalArgumentException {
-
         String g = CustomInput.stringInput("please enter the word you want");
         int count4 = 0;
         for (Book a4 : library) {
@@ -134,32 +129,29 @@ public class SearchOperation {
         }
     }
 
-    private void SearchPages(List<Book> library) {
+    private void SearchPages(BookDao bookDao) {
         int pe = CustomInput.byteInput("please choose option:\n 1.more than \n 2.less than\n");
-        int count2 = 0;
-        int p = CustomInput.intInput("please enter the number you want");
-        for (Book a : library) {
-            switch (pe) {
-                case 1:
-                    if (a.getPages() >= p) {
-                        System.out.print(a.getName());
-                        count2++;
-                    }
-                    break;
-                case 2:
-                    if (a.getPages() <= p) {
-                        System.out.print(a.getName());
-                        count2++;
-                    }
-                    break;
-                default:
-                    System.out.println("wrong number");
-                    break;
-            }
-            if (count2 == 0) {
-                System.out.println("does not exist");
-            }
+        int pages = CustomInput.intInput("please enter the number you want");
+        List<Book> books;
 
+        switch (pe) {
+            case 1:
+                books = bookDao.getBooksByPagesGe(pages);
+                if (books == null || books.size() == 0) {
+                    System.out.println("does not exist");
+                    break;
+                }
+
+                for (Book a : books) {
+                    System.out.print(a.getName());
+                }
+                break;
+            case 2:
+
+                break;
+            default:
+                System.out.println("wrong number");
+                break;
         }
     }
 
